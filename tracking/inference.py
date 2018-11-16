@@ -482,7 +482,6 @@ class JointParticleFilter:
                 if j not in jailed:
                     distance = util.manhattanDistance(self.particles[i][0][j], pacmanPosition)
                     prob *= emissionModels[j][distance]
-            # self.particles[i][1] *= prob
             self.particles[i][1] = prob
         # Normalize
         beliefDist = self.getBeliefDistribution()
@@ -547,13 +546,16 @@ class JointParticleFilter:
         """
         newParticles = []
         for oldParticle in self.particles:
-            newParticle = list(oldParticle) # A list of ghost positions
+            newParticle = list(oldParticle[0]) # A list of ghost positions
             # now loop through and update each entry in newParticle...
-
             "*** YOUR CODE HERE ***"
-
+            for i in range(self.numGhosts):
+                newGameState = setGhostPositions(gameState, oldParticle[0])
+                newBeliefs = getPositionDistributionForGhost(newGameState, i, self.ghostAgents[i])
+                newParticle[i] = util.sample(newBeliefs)
+            newParticle = [tuple(newParticle), 1.0]
             "*** END YOUR CODE HERE ***"
-            newParticles.append(tuple(newParticle))
+            newParticles.append(newParticle)
         self.particles = newParticles
 
     def getBeliefDistribution(self):
